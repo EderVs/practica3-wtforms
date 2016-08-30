@@ -296,3 +296,12 @@ class Form(with_metaclass(FormMeta, BaseForm)):
                 extra[name] = [inline]
 
         return super(Form, self).validate(extra)
+
+    def has_changed(self):
+        """
+        Check if the form values has changed of None    
+        """
+        for field, value in self.data.items():
+            if bool(value):
+                return True
+        return False
