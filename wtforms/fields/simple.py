@@ -65,3 +65,37 @@ class SubmitField(BooleanField):
     submit button has been pressed.
     """
     widget = widgets.SubmitInput()
+
+    
+class ImageField(FileField):
+
+    def __init__(self, max_size, *args, **kwargs):
+        FileField.__init__(self, *args, **kwargs)
+        self.max_width = max_size[0]
+        self.max_height = max_size[1]
+
+    def post_validate(self, form, validation_stopped):
+        if self.data:
+            width, height = Image.open(self.data).size
+
+            self.validate_field_(
+                'filename', self.data.filename, NotEmpty
+            )
+            self.validate_field_(
+                'mimetype', self.data.mimetype, NotEmpty
+            )
+            self.validate_field_(
+                'width', width, NotMoreThan, self.max_width
+            )
+            self.validate_field_(
+                'height', height, NotMoreThan, self.max_height
+            )
+
+    def validate_field_(self, specific_field, value, Criteria, *args):
+        criteria = Criteria(self, specific_field, value, *args)
+        if not criteria.is_valid():
+            error = criteria.get_error()
+            self.add_error_(error)
+
+    def add_error_(self, error):
+        self.errors.append(error)
