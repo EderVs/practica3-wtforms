@@ -305,3 +305,14 @@ class Form(with_metaclass(FormMeta, BaseForm)):
             if bool(value):
                 return True
         return False
+
+
+class OptionalForm(ExtendedForm):
+    """
+        Optional Form that its fields are optional if they have any
+        change, otherwise they get required
+    """
+    def validate_optional(self):
+        if not self.has_changed():
+            return True
+        return self.validate_on_submit()
